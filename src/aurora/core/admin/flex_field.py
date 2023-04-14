@@ -15,10 +15,10 @@ from smart_admin.modeladmin import SmartModelAdmin
 from ...administration.mixin import LoadDumpMixin
 from ..admin_sync import SyncMixin
 from ..forms import Select2Widget
-from ..models import FIELD_KWARGS, FlexFormField
-from ..utils import dict_setdefault, is_root, render
+from ..models import FlexFormField
+from ..utils import is_root
 from .base import ConcurrencyVersionAdmin
-from .field_editor import FieldEditor
+from ..editors.field import FieldEditor
 from .filters import Select2FieldComboFilter
 
 logger = logging.getLogger(__name__)
@@ -30,13 +30,6 @@ class FlexFormFieldForm(forms.ModelForm):
     class Meta:
         model = FlexFormField
         exclude = ()
-
-    def clean(self):
-        ret = super().clean()
-        ret.setdefault("advanced", {})
-        dict_setdefault(ret["advanced"], FlexFormField.FLEX_FIELD_DEFAULT_ATTRS)
-        dict_setdefault(ret["advanced"], {"kwargs": FIELD_KWARGS.get(ret["field_type"], {})})
-        return ret
 
 
 @register(FlexFormField)
@@ -102,11 +95,6 @@ class FlexFormFieldAdmin(LoadDumpMixin, SyncMixin, ConcurrencyVersionAdmin, Orde
             return self.editor.get(request, pk)
 
     @view()
-    def widget_attrs(self, request, pk):
-        editor = FieldEditor(self, request, pk)
-        return editor.get_configuration()
-
-    @view()
     def widget_refresh(self, request, pk):
         editor = FieldEditor(self, request, pk)
         return editor.refresh()
@@ -114,46 +102,56 @@ class FlexFormFieldAdmin(LoadDumpMixin, SyncMixin, ConcurrencyVersionAdmin, Orde
     @view()
     def widget_code(self, request, pk):
         editor = FieldEditor(self, request, pk)
-        return editor.get_code()
+        return editor.get_html()
+
+    @view()
+    def widget_advanced(self, request, pk):
+        editor = FieldEditor(self, request, pk)
+        return editor.get_advanced()
+
+    @view()
+    def widget_kwargs(self, request, pk):
+        editor = FieldEditor(self, request, pk)
+        return editor.get_kwargs()
 
     @view()
     def widget_display(self, request, pk):
         editor = FieldEditor(self, request, pk)
         return editor.render()
 
-    @button()
-    def test(self, request, pk):
-        ctx = self.get_common_context(request, pk)
-        try:
-            fld = ctx["original"]
-            instance = fld.get_instance()
-            ctx["debug_info"] = {
-                # "widget": getattr(instance, "widget", None),
-                "field_kwargs": fld.get_field_kwargs(),
-                # "options": getattr(instance, "options", None),
-                # "choices": getattr(instance, "choices", None),
-                # "widget_attrs": instance.widget_attrs(instance.widget),
-            }
-            form_class_attrs = {
-                "sample": instance,
-            }
-            form_class = type(forms.Form)("TestForm", (forms.Form,), form_class_attrs)
-
-            if request.method == "POST":
-                form = form_class(request.POST)
-
-                if form.is_valid():
-                    ctx["debug_info"]["cleaned_data"] = form.cleaned_data
-                    self.message_user(
-                        request, f"Form validation success. You have selected: {form.cleaned_data['sample']}"
-                    )
-            else:
-                form = form_class()
-            ctx["form"] = form
-            ctx["instance"] = instance
-        except Exception as e:
-            logger.exception(e)
-            ctx["error"] = e
-            raise
-
-        return render(request, "admin/core/flexformfield/test.html", ctx)
+    # @button()
+    # def test(self, request, pk):
+    #     ctx = self.get_common_context(request, pk)
+    #     try:
+    #         fld = ctx["original"]
+    #         instance = fld.get_instance()
+    #         ctx["debug_info"] = {
+    #             # "widget": getattr(instance, "widget", None),
+    #             "field_kwargs": fld.get_field_kwargs(),
+    #             # "options": getattr(instance, "options", None),
+    #             # "choices": getattr(instance, "choices", None),
+    #             # "widget_attrs": instance.widget_attrs(instance.widget),
+    #         }
+    #         form_class_attrs = {
+    #             "sample": instance,
+    #         }
+    #         form_class = type(forms.Form)("TestForm", (forms.Form,), form_class_attrs)
+    #
+    #         if request.method == "POST":
+    #             form = form_class(request.POST)
+    #
+    #             if form.is_valid():
+    #                 ctx["debug_info"]["cleaned_data"] = form.cleaned_data
+    #                 self.message_user(
+    #                     request, f"Form validation success. You have selected: {form.cleaned_data['sample']}"
+    #                 )
+    #         else:
+    #             form = form_class()
+    #         ctx["form"] = form
+    #         ctx["instance"] = instance
+    #     except Exception as e:
+    #         logger.exception(e)
+    #         ctx["error"] = e
+    #         raise
+    #
+    #     return render(request, "admin/core/flexformfield/test.html", ctx)

@@ -56,6 +56,20 @@ body {
       width: 60%;
       background: var(--breadcrumbs-bg);
 
+      #event_selector {
+        option {
+          font-style: oblique;
+          font-weight: bold;
+          color: red;
+
+          &.used::after {
+            content: " --- ";
+            color: red;
+
+          }
+        }
+      }
+
       table:first-child {
         background: var(--breadcrumbs-bg);
         width: 100%;
@@ -224,6 +238,7 @@ table2 {
   .code {
     display: none;
   }
+
   .code.selected {
     display: block;
   }

@@ -15,21 +15,15 @@
         const lang = $("meta[name=\"Language\"]").attr("content");
         const sessionUrl = get_session();
         var parts = location.href.split("/");
-        console.log(lang);
         $.get("/api/registration/" + pk + "/" + lang + "/version/?" + Math.random(), function (data) {
             const version = parseInt(parts[parts.length - 2]);
             if (version !== data.version) {
-                console.log("version mismatch: redirect", data.url)
                 location.href = data.url;
             } else if (data.auth && (data.session_id !== sessionUrl)) {
-                console.log("session_id mismatch: redirect", data.url)
                 location.href = data.url;
             } else if (!data.auth && sessionUrl) {
-                console.log("session_id tampered with: redirect", data.url)
                 location.href = data.url;
-            } else {
-                console.log("version matches", data.url)
-            }
+            };
         });
     });
 })($);

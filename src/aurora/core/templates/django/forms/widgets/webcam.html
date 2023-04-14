@@ -11,11 +11,11 @@
     <div>
         <button class="show-camera bg-white hover:bg-gray-100 text-gray-800 font-semibold my-2 mx-2 py-2 px-4 border border-gray-400 rounded shadow"
                 type="button">
-            {% trans buttonLabel %}
+            {% trans widget.flex_field.advanced.custom.snap_label|default:"Take photo" %}
         </button>
         <button class="clear-camera bg-white hover:bg-gray-100 text-gray-800 font-semibold my-2 mx-2 py-2 px-4 border border-gray-400 rounded shadow"
                 type="button">
-            {% trans cancelLabel %}
+            {% trans widget.flex_field.advanced.custom.cancel_label|default:"Cancel photo" %}
         </button>
     </div>
 </div>

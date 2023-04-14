@@ -7,6 +7,7 @@ from django.template import loader
 from django.utils.safestring import mark_safe
 from django.views.decorators.csrf import csrf_protect
 
+
 DEFAULT_TEMPLATE = "flatpages/default.html"
 
 
@@ -37,12 +38,13 @@ def flatpage(request, url):
 
 
 @csrf_protect
-def render_flatpage(request, f):
+def render_flatpage(request, context):
     """
     Internal interface to the flat page view.
     """
     # If registration is required for accessing this page, and the user isn't
     # logged in, redirect to the login page.
+    f: FlatPage = context["flatpage"]
     if f.registration_required and not request.user.is_authenticated:
         from django.contrib.auth.views import redirect_to_login
 
@@ -58,4 +60,12 @@ def render_flatpage(request, f):
     f.title = mark_safe(f.title)
     f.content = mark_safe(f.content)
 
-    return HttpResponse(template.render({"flatpage": f}, request))
+    return HttpResponse(
+        template.render(
+            {
+                "flatpage": f,
+                **(context or {}),
+            },
+            request,
+        )
+    )

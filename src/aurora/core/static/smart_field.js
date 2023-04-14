@@ -1,4 +1,8 @@
 ;(function ($) {
+    const NUMBERS = ['month', 'number', 'week'];
+    const DATES = ['date', 'time'];
+    const STRINGS = ['email', 'tel', 'text', 'url'];
+
     var highLight = function (onOff) {
         if (onOff) {
             this.__oldBorder = this.$.css("border");
@@ -8,14 +12,14 @@
         }
         return this;
     };
-    window.debug = function (arguments){
+    window.debug = function (arguments) {
         var log;
-        if (window.parent.document.getElementById('debugLog') ){
+        if (window.parent.document.getElementById('debugLog')) {
             log = window.parent.document.getElementById('debugLog');
-        }else{
+        } else {
             log = window.document.getElementById('debugLog');
         }
-        if (log){
+        if (log) {
             $(log).append(arguments);
             $(log).append("\n");
         }
@@ -30,25 +34,50 @@
             self.$submit = $form.find("input[type=submit]");
             self.config = config;
             self.name = config.name;
-            self.setError = function (msg){
+            self.setError = function (msg) {
                 self.$.find('.alert-message').html(msg);
             };
             self.pushError = function (f) {
-                self.enableSubmit(false);
                 errorsStack[f] = true;
             };
             self.popError = function (f) {
                 errorsStack[f] = false;
-                self.enableSubmit(self.isValid());
+                // var ret = false;
+                var ret = _.filter(_.values(errorsStack), function (i) {
+                    return i === true;
+                });
             }
+            self.getError = function (f) {
+                return errorsStack[f];
+            }
+            self.getErrors = function () {
+                return _.filter(_.keys(errorsStack), function (i, e) {
+                    return errorsStack[i] === true;
+                });
+            }
+            var _fields = null;
+            self.fields = function () {
+                if (_fields == null) {
+                    _fields = {}
+                    $form.find(`:input[data-flex-name]`).each(function (i, e) {
+                        var f = new aurora.Field(e);
+                        _fields[f.name] = f;
+                    });
+                }
+                return _fields
+            };
 
             self.isValid = function () {
-                for (let i = 0, keys = Object.keys(errorsStack), ii = keys.length; i < ii; i++) {
-                    if (errorsStack[i] === false) {
-                        return false
+                var ret = true
+                for (let i = 0, keys = Object.keys(self.fields()), ii = keys.length; i < ii; i++) {
+                    var f = self.fields()[keys[i]];
+                    var ok = f.isValid();
+                    if (ok === false) {
+                        ret = false;
+                        break;
                     }
                 }
-                return true;
+                return ret;
             }
 
             self.enableSubmit = function (onOff) {
@@ -62,7 +91,8 @@
 
             $form.on('submit', function (e) {
                 if (self.isValid()) {
-                    $(this).find("input[type=submit]").prop("disabled", "disabled").val(gettext("Please wait..."));
+                    $form.find("input[type=submit]").prop("disabled", "disabled").val(gettext("Please wait..."));
+                    return true;
                 } else {
                     return false;
                 }
@@ -80,7 +110,25 @@
             self.fields = function () {
                 if (_fields == null) {
                     _fields = {}
-                    $me.find(`:input[data-flex]`).each(function (i, e) {
+                    $me.find(`:input[data-flex-name]`).each(function (i, e) {
+                        var f = new aurora.Field(e);
+                        _fields[f.name] = f;
+                    });
+                }
+                return _fields
+            };
+        },
+        FlexForm: function (name) {
+            var self = this;
+            const $me = $(".form-container." + name);
+
+            self.$ = $me;
+            // var $container=$(".form-container");
+            var _fields = null;
+            self.fields = function () {
+                if (_fields == null) {
+                    _fields = {}
+                    $me.find(`:input[data-flex-name]`).each(function (i, e) {
                         var f = new aurora.Field(e);
                         _fields[f.name] = f;
                     });
@@ -114,11 +162,17 @@
             const $formContainer = $me.parents('.form-container');
             // const $input = $fieldset.find(`#${id}`);
             const $input = $(origin);
+            const inputType = $input.attr("type");
             const initial = {
                 required: $input.attr("required"),
             }
             self.$ = $fieldset;
-            self.name = $fieldset.data("fname");
+            self.$input = $input;
+            self.$fieldset = $fieldset;
+            self.flexName = $fieldset.data("fname");
+            self.name = $input.attr("name");
+            self.$description = $fieldset.find('.description');
+            self.$hint = $fieldset.find('.hint');
 
             self.highLight = highLight;
             self.setRequired = function (onOff) {
@@ -161,13 +215,43 @@
                     return $input.val().trim() !== '';
                 }
             };
+            self.isValid = function () {
+                if ($input.data('validation')) {
+                    var code = $input.data('validation');
+                    var ret = true;
+                    try {
+                        (function () {
+                            return eval(code);
+                        }.call(self.origin));
+                        ret = !module.getError(self.name);
+                        return ret;
+                    } catch (e) {
+                        return false;
+                    }
+                }
+                if ($input.data('validator')) {
+                    try {
+                        var f = $input.data('validator');
+                        return f(self.origin);
+                        // (function () {
+                        //     return eval(code);
+                        // }.call(self.origin));
+                        // ret = !module.getError(self.name);
+                        // return ret;
+                    } catch (e) {
+                        return false;
+                    }
+                }
+            };
             self.setError = function (text) {
                 if (text) {
+                    $fieldset.data("error", text);
                     $fieldset.find(".errors").html(`<ul class="errorlist"><li>${text}</li></ul>`);
-                    module.pushError(self);
+                    module.pushError(self.name);
                 } else {
+                    $fieldset.data("error", "");
                     $fieldset.find(".errors").html("");
-                    module.popError(self);
+                    module.popError(self.name);
                 }
                 return self;
             }
@@ -195,10 +279,15 @@
             }
             self.setValue = function (value) {
                 $input.val(value);
+                $input.trigger("change");
                 return self;
             };
             self.getValue = function () {
-                return $input.val();
+                var raw = $input.val();
+                if (NUMBERS.indexOf(inputType) >= 0) {
+                    return parseInt(raw);
+                }
+                return raw;
             };
             self.setDescription = function (value) {
                 $fieldset.find('.description').text(value);
@@ -257,5 +346,8 @@
         if (!window.module) {
             window.module = new aurora.Module({});
         }
+        $('[data-onload]').each(function () {
+            eval($(this).data('onload'));
+        });
     });
-})(jQuery||django.jQuery);
+})(jQuery || django.jQuery);

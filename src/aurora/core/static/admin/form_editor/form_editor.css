@@ -48,6 +48,15 @@ body {
   width: 60%;
   background: var(--breadcrumbs-bg);
 }
+#fieldEditor #mainPanel .settings #event_selector option, #formEditor #mainPanel .settings #event_selector option {
+  font-style: oblique;
+  font-weight: bold;
+  color: red;
+}
+#fieldEditor #mainPanel .settings #event_selector option.used::after, #formEditor #mainPanel .settings #event_selector option.used::after {
+  content: " --- ";
+  color: red;
+}
 #fieldEditor #mainPanel .settings table:first-child, #formEditor #mainPanel .settings table:first-child {
   background: var(--breadcrumbs-bg);
   width: 100%;
@@ -173,4 +182,24 @@ table2 tr td input, table2 tr td select, table2 tr td textarea {
   font-variant: none;
 }
 
-/*# sourceMappingURL=field_editor.css.map */
+#formEditor #mainPanel .settings #fields tr td .subwidget {
+  display: inline-block;
+  content: "";
+  width: 14px;
+  height: 14px;
+  background-size: 14px 14px;
+  background-image: url("admin_ordering-icon.svg");
+  background-repeat: no-repeat;
+  background-position: center center;
+  vertical-align: middle;
+  margin-right: 5px;
+}
+#formEditor #mainPanel .settings #fields tr td input {
+  margin-right: 10px;
+}
+#formEditor #mainPanel .settings #fields tr td input[type=text] {
+  width: 60%;
+  display: inline-block;
+}
+
+/*# sourceMappingURL=form_editor.css.map */

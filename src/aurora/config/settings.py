@@ -242,7 +242,7 @@ LOCALE_PATHS = (str(PACKAGE_DIR / "LOCALE"),)
 SESSION_COOKIE_AGE = 60 * 60 * 24 * 7  # 7 days
 # SESSION_COOKIE_DOMAIN = env('SESSION_COOKIE_DOMAIN')
 SESSION_COOKIE_SAMESITE = "Lax"
-SESSION_COOKIE_SECURE = False
+SESSION_COOKIE_SECURE = env("SESSION_COOKIE_SECURE")
 SESSION_COOKIE_NAME = env("SESSION_COOKIE_NAME")
 SESSION_ENGINE = "django.contrib.sessions.backends.signed_cookies"
 SESSION_COOKIE_HTTPONLY = True
@@ -381,7 +381,7 @@ if SENTRY_DSN:
 
     sentry_sdk.init(
         dsn=SENTRY_DSN,
-        environment="production",
+        environment=env("SENTRY_ENVIRONMENT"),
         integrations=[
             DjangoIntegration(transaction_style="url"),
             sentry_logging,
@@ -691,7 +691,13 @@ ADMIN_SYNC_REMOTE_ADMIN_URL = env("ADMIN_SYNC_REMOTE_ADMIN_URL", default="")
 ADMIN_SYNC_LOCAL_ADMIN_URL = env("ADMIN_SYNC_LOCAL_ADMIN_URL", default="")
 # ADMIN_SYNC_USE_REVERSION=
 
-SILENCED_SYSTEM_CHECKS = ["debug_toolbar.W006", "urls.W005", "admin_extra_buttons.PERM"]
+SILENCED_SYSTEM_CHECKS = [
+    "debug_toolbar.W006",
+    "urls.W005",
+    "admin_extra_buttons.PERM",
+    "security.W008",  # SECURE_SSL_REDIRECT
+    "security.W019",  # XFrameOptionsMiddleware
+]
 
 DBTEMPLATES_USE_REVERSION = True
 DBTEMPLATES_USE_CODEMIRROR = True

@@ -6,6 +6,7 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.forms import BaseFormSet
 from django.utils import formats
+from django.utils.functional import cached_property
 from django.utils.translation import gettext as _
 
 from .fields.widgets import JavascriptEditor
@@ -26,8 +27,17 @@ class CustomFieldMixin:
 
 class FlexFormBaseForm(forms.Form):
     flex_form = None
-    compilation_time_field = None
+    # compilation_time_field = None
     indexes = {"1": None, "2": None, "3": None}
+    field_order = None
+
+    @cached_property
+    def compilation_time_field(self) -> str:
+        from aurora.core.fields import CompilationTimeField
+
+        for name, fld in self.fields.items():
+            if isinstance(fld, CompilationTimeField):
+                return name
 
     def get_counters(self, data):
         if self.compilation_time_field:

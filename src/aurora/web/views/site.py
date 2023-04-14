@@ -13,6 +13,7 @@ from django.views.decorators.cache import cache_control
 from django.views.generic import TemplateView
 
 from aurora.core.utils import get_etag, get_qrcode, render
+from aurora.i18n.gettext import gettext as _
 from aurora.registration.models import Registration
 
 logger = logging.getLogger(__name__)
@@ -44,7 +45,6 @@ class PageView(TemplateView):
         return [f"{self.kwargs['page']}.html"]
 
     def get_context_data(self, **kwargs):
-        from aurora.i18n.gettext import gettext as _
 
         return super().get_context_data(
             title="Title", registrations=get_active_registrations(), title2=_("Title2"), **kwargs

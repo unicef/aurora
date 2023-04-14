@@ -34,7 +34,9 @@ def configure_settings(settings):
 def pytest_configure(config):
     os.environ["DEBUG"] = "0"
     os.environ["ADMINS"] = "admin@demo.org"
-    os.environ["CAPTCHA_TEST_MODE"] = "true"
+    os.environ["SESSION_COOKIE_HTTPONLY"] = "1"
+    os.environ["SESSION_COOKIE_SECURE"] = "0"
+    os.environ["CSRF_COOKIE_SECURE"] = "0"
 
     if config.option.show_browser:
         setattr(config.option, "enable_selenium", True)

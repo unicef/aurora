@@ -14,8 +14,10 @@
             cm.setOption("fullScreen", !cm.getOption("fullScreen"));
             cm.focus();
             if (cm.getOption("fullScreen")) {
+                $("#fieldEditor .submit-row").hide();
                 $("#toggle-nav-sidebar").hide();
             } else {
+                $("#fieldEditor .submit-row").show();
                 $("#toggle-nav-sidebar").show();
             }
         },

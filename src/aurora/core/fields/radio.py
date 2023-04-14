@@ -1,5 +1,6 @@
 from django import forms
 
+from .select import SmartChoiceWidget
 from .widgets import RadioWidget, YesNoRadioWidget
 
 
@@ -12,7 +13,7 @@ class YesNoMixin:
         if not choices:
             choices = (("y", "Yes"), ("n", "No"))
         else:
-            if len(choices) != 2:
+            if len(choices) > 2:
                 raise ValueError("YesNo accept only 2 choice label")
             for el in choices:
                 if not isinstance(el, (list, tuple)) and el[0] not in ["y", "n"]:
@@ -26,4 +27,4 @@ class YesNoRadio(YesNoMixin, RadioField):
 
 
 class YesNoChoice(YesNoMixin, forms.ChoiceField):
-    pass
+    widget = SmartChoiceWidget

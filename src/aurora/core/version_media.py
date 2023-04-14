@@ -11,9 +11,9 @@ class VersionMedia(forms.Media):
     def __str__(self):
         return self.render()
 
-    # def render_js(self):
-    #     version = os.environ.get("VERSION", "<dev>")
-    #     return [format_html('<script src="{}?{}"></script>', self.absolute_path(path), version) for path in self._js]
+    def render_js(self):
+        version = os.environ.get("VERSION", "<dev>")
+        return [format_html('<script src="{}?{}"></script>', self.absolute_path(path), version) for path in self._js]
 
     def render_css(self):
         # To keep rendering order consistent, we can't just iterate over items().

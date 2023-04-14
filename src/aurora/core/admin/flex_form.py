@@ -1,4 +1,5 @@
 import logging
+from smart_admin.mixins import LinkedObjectsMixin
 
 from admin_extra_buttons.decorators import button, view
 from admin_ordering.admin import OrderableAdmin
@@ -16,7 +17,7 @@ from ..models import FlexForm, FlexFormField, FormSet
 from ..utils import render
 from .base import ConcurrencyVersionAdmin
 from .filters import ProjectFilter, UsedByRegistration, UsedInRFormset
-from .form_editor import FormEditor
+from ..editors.flex_form import FormEditor
 
 logger = logging.getLogger(__name__)
 
@@ -65,7 +66,7 @@ class FlexFormFieldInline(LoadDumpMixin, OrderableAdmin, TabularInline):
 
 
 @register(FlexForm)
-class FlexFormAdmin(SyncMixin, ConcurrencyVersionAdmin, SmartModelAdmin):
+class FlexFormAdmin(SyncMixin, ConcurrencyVersionAdmin, LinkedObjectsMixin, SmartModelAdmin):
     SYNC_COOKIE = "sync"
     inlines = [
         FlexFormFieldInline,
@@ -139,6 +140,16 @@ class FlexFormAdmin(SyncMixin, ConcurrencyVersionAdmin, SmartModelAdmin):
         return editor.get_configuration()
 
     @view()
+    def editor_sort(self, request, pk):
+        editor = FormEditor(self, request, pk)
+        return editor.sort()
+
+    @view()
+    def editor_advanced(self, request, pk):
+        editor = FormEditor(self, request, pk)
+        return editor.get_advanced()
+
+    @view()
     def widget_refresh(self, request, pk):
         editor = FormEditor(self, request, pk)
         return editor.refresh()
@@ -153,20 +164,20 @@ class FlexFormAdmin(SyncMixin, ConcurrencyVersionAdmin, SmartModelAdmin):
         editor = FormEditor(self, request, pk)
         return editor.render()
 
-    @button()
-    def test(self, request, pk):
-        ctx = self.get_common_context(request, pk)
-        form_class = self.object.get_form_class()
-        if request.method == "POST":
-            form = form_class(request.POST, initial=self.object.get_initial())
-            if form.is_valid():
-                ctx["cleaned_data"] = form.cleaned_data
-                self.message_user(request, "Form is valid")
-        else:
-            form = form_class(initial=self.object.get_initial())
-        ctx["form"] = form
-        return render(request, "admin/core/flexform/test.html", ctx)
-
+    # @button()
+    # def test(self, request, pk):
+    #     ctx = self.get_common_context(request, pk)
+    #     form_class = self.object.get_form_class()
+    #     if request.method == "POST":
+    #         form = form_class(request.POST, initial=self.object.get_initial())
+    #         if form.is_valid():
+    #             ctx["cleaned_data"] = form.cleaned_data
+    #             self.message_user(request, "Form is valid")
+    #     else:
+    #         form = form_class(initial=self.object.get_initial())
+    #     ctx["form"] = form
+    #     return render(request, "admin/core/flexform/test.html", ctx)
+    #
     # @view(http_basic_auth=True, permission=lambda request, obj: request.user.is_superuser)
     # def export(self, request):
     #     try:

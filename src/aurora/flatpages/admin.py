@@ -16,22 +16,26 @@ class FlatPageAdmin(SyncMixin, SmartModelAdmin):
     list_display = (
         "title",
         "url",
+        "registration_required",
     )
     list_filter = ("sites", "registration_required")
     filter_horizontal = ("sites",)
     search_fields = ("url", "title")
     save_on_top = True
-    # fieldsets = (
-    #     (None, {'fields': ('url', 'title', 'content', 'sites')}),
-    #     (_('Advanced options'), {
-    #         'classes': ('collapse',),
-    #         'fields': (
-    #             'enable_comments',
-    #             'registration_required',
-    #             'template_name',
-    #         ),
-    #     }),
-    # )
+    fieldsets = (
+        (None, {"fields": ("url", "title", "content", "sites")}),
+        (
+            "Advanced options",
+            {
+                "classes": ("collapse",),
+                "fields": (
+                    "enable_comments",
+                    "registration_required",
+                    "template_name",
+                ),
+            },
+        ),
+    )
 
     def get_changeform_initial_data(self, request):
         initial = super().get_changeform_initial_data(request)

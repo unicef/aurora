@@ -12,11 +12,10 @@
 {% endblock meta %}
 {% block cache %}{% endblock %}
 {% block head %}
-{#    <script src="{% static "admin/js/vendor/jquery/jquery.js" %}"></script>#}
     <script src="{% url 'javascript-catalog' registration.locale %}"></script>
-{#    <script src="{% static 'registration/survey.min.js' %}"></script>#}
-{#    <script>var VERSION="{{ project.version }}";var DSN="{{ project.sentry_dsn }}";</script>#}
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.13.6/underscore-min.js"
+            integrity="sha512-2V49R8ndaagCOnwmj8QnbT1Gz/rie17UouD9Re5WxbzRVUGoftCu5IuqqtAM9+UC3fwfHCSJR1hkzNQh/2wdtg=="
+            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="https://browser.sentry-cdn.com/5.30.0/bundle.min.js"
             integrity="sha384-V+jCLoAVKKml0VanRLGJGAdKk+Lzo1kRFe079J0majdfeGabOd32KG/2adGnr4N0"
             id="script-sentry" data-dsn="{{ project.sentry_dsn }}" data-version="{{ project.version }}"

@@ -47,19 +47,18 @@
                 img.setAttribute("src", currentValue);
             }
         };
-        $(".vPictureField").each(function () {
+        $(".WebcamWidget").each(function () {
             initWebCamField(this);
         });
 
-        $("div.formset").on("click", ".show-camera", function () {
+        $("div.field-container").on("click", ".show-camera", function () {
             var win = $(window);
             // session = new Session($(this).parents('.field-container').find('input').attr("name"));
             activeSession = $(this).data("session");
             $("#camera").css("display", "flex");
             startup();
         });
-        $("div.formset").on("click", ".clear-camera", function () {
-            // activeSession = new Session($(this).parents('.field-container').find('input').attr("name"));
+        $("div.field-container").on("click", ".clear-camera", function () {
             activeSession = $(this).data("session");
             activeSession.context.fillStyle = "#AAA";
             activeSession.context.fillRect(0, 0, activeSession.canvas.width, activeSession.canvas.height);
@@ -138,4 +137,4 @@
             }
         }, false);
     });
-})(jQuery);
+})(jQuery || django.jQuery);

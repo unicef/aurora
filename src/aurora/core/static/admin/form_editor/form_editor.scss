@@ -1,0 +1,37 @@
+@import "../f_editor.scss";
+
+#formEditor {
+  #mainPanel {
+    .settings {
+
+      #fields {
+        tr {
+          td {
+            .subwidget {
+              display: inline-block;
+              content: "";
+              width: 14px;
+              height: 14px;
+              background-size: 14px 14px;
+              background-image: url("admin_ordering-icon.svg");
+              background-repeat: no-repeat;
+              background-position: center center;
+              vertical-align: middle;
+              margin-right: 5px;
+            }
+
+            input {
+              margin-right: 10px;
+            }
+
+            input[type=text] {
+              width: 60%;
+              display: inline-block;
+            }
+          }
+        }
+      }
+    }
+  }
+
+}

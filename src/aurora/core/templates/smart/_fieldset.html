@@ -1,6 +1,7 @@
 {% load itrans aurora %}{% with field.field.flex_field.advanced as ADV %}
     {% if can_edit_inpage %}{% include "registration/_staff_edit_field.html" %}{% endif %}
-    <fieldset data-fpk="{{ field.field.flex_field.pk }}" data-fname="{{ field.name }}" data-fid="{{ field.auto_id }}"  class="{{ field.name }} {{ field.field.flex_field.advanced.widget_kwargs.fieldset }}">
+    <fieldset data-fpk="{{ field.field.flex_field.pk }}" data-fname="{{ field.name }}" data-fid="{{ field.auto_id }}"
+              class="{{ field.name }} p-1 {{ ADV.css.fieldset }}">
     {% if field.field.flex_field.validator and registration.client_validation %}
         <script src="/api/validator/{{ field.field.flex_field.validator.pk }}/script/"></script>
     {% endif %}
@@ -21,20 +22,20 @@
         <label data-msgid="{{ field.label }}" data-i18n-Type="FieldLabel"
                 class="itrans  {{ ADV.css.label|default:"block uppercase tracking-wide text-gray-700 font-bold mb-2" }}" for="{{ field.auto_id }}">
 {#            {% if can_translate %}{% include "i18n/_staff_edit_i18n.html" with original=field.label %}{% endif %}#}
-            {% trans field.label|md %}
+            {% trans field.label %}
 {#            {% if field.field.required  or field.field.smart_attrs.required_by_question %}#}
                 <span data-msgid="required"
                       class="required-label hidden itrans lowercase font-thin required text-xs">({% trans "required" %})</span>
 {#            {% endif %}#}
         </label>
-        <div class="itrans text-sm description" data-msgid="{{ ADV.smart.description }}">
+        <div class="itrans text-sm description {{ ADV.css.description }}" data-msgid="{{ ADV.smart.description }}">
         {% if ADV.smart.description %}{% trans ADV.smart.description %}{% endif %}
         </div>
 {#        -- {{ field.field.flex_field.advanced.events.validation }} --#}
 
         <span class="errors">{{ field.errors }}</span>
         {{ field }}
-        <div class="text-xs	italic hint" data-msgid="{{ ADV.smart.hint }}">
+        <div class="text-xs	hint {{ ADV.css.hint|default:"italic" }}" data-msgid="{{ ADV.smart.hint }}">
 {#            {% if user.is_staff %}{% include "i18n/_staff_edit_i18n.html" with original=field|smart:"hint,0" %}{% endif %}#}
             {% trans ADV.smart.hint %}
         </div>

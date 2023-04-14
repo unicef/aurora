@@ -10,11 +10,18 @@
         //     clear: "Clear",
         //     titleFormat: "MM y"
         // };
-        $("body").on("focus", ".vDateField", function () {
-            new Datepicker(this, {
-                autohide: true,
-                format: "yyyy-mm-dd",
+        $("input.vDateField").on("focus", function () {
+            var $input = $(this);
+            var dt = new Datepicker(this, {
+                autohide: true, format: "yyyy-mm-dd",
             });
+            this.addEventListener(
+                "changeDate",
+                function () {
+                    $input.trigger("change");
+                },
+                false
+            );
         });
     });
 })(jQuery);

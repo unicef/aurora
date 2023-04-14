@@ -6,12 +6,16 @@ from strategy_field.fields import StrategyFormField as StrategyFormField_
 from strategy_field.utils import fqn
 
 
-class RegexEditor(forms.Textarea):
-    template_name = "django/forms/widgets/regex.html"
+class JsRegexEditor(forms.Textarea):
+    template_name = "django/forms/widgets/jsregex.html"
 
 
 class RegexField(RegexField_):
-    widget = RegexEditor
+    pass
+
+
+class JavascriptRegexField(RegexField_):
+    widget = JsRegexEditor
 
     def value_from_object(self, obj):
         """Return the value of this field in the given model instance."""

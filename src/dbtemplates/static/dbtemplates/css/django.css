@@ -2,8 +2,12 @@ html {
   cursor: text;
 }
 
+body {
+  background-color: azure;
+}
+
 .editbox {
-  margin: .4em;
+  margin: 0.4em;
   padding: 0;
   font-family: monospace;
   font-size: 10pt;
@@ -60,9 +64,11 @@ span.xml-entity {
 }
 
 span.xml-error {
- color: #F00 !important;
+  color: #F00 !important;
 }
 
 span.xml-text {
   color: black;
 }
+
+/*# sourceMappingURL=django.css.map */

@@ -1,20 +1,25 @@
 {% load static aurora %}
-<style>
-    body {
-        background-color: white;
-    }
-</style>
-<link href="https://unpkg.com/tailwindcss@1.9.6/dist/tailwind.min.css" rel="stylesheet">
-<link rel="stylesheet" href="{% static "base.css" %}">
-<script type="text/javascript" src="{% url 'admin:jsi18n' %}"></script>
-{#<script src="{% static "admin/js/vendor/jquery/jquery.js" %}"></script>#}
-{#<script src="{% static "admin/js/jquery.init.js" %}"></script>#}
-{#<script src="{% static "jquery.compat.js" %}"></script>#}
-{#<script src="{% static "smart_validation.js" %}"></script>#}
-{#<script src="{% static "smart.js" %}"></script>#}
-{#<script src="{% static "smart_field.js" %}"></script>#}
-{{ form.media }}
-
+<html>
+<head>
+    <style>
+        body {
+            background-color: white;
+        }
+    </style>
+    <link href="https://unpkg.com/tailwindcss@1.9.6/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static "base.css" %}">
+    <script type="text/javascript" src="{% url 'admin:jsi18n' %}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.13.6/underscore-min.js"
+            integrity="sha512-2V49R8ndaagCOnwmj8QnbT1Gz/rie17UouD9Re5WxbzRVUGoftCu5IuqqtAM9+UC3fwfHCSJR1hkzNQh/2wdtg=="
+            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    {#    <script>#}
+    {#        console.log = function(){#}
+    {#            $("#log").append(arguments);#}
+    {#        }#}
+    {#    </script>#}
+    {{ media }}
+</head>
+<body>
 {% if request.method == "POST" %}
     {% if valid %}
         <div class="mb-10 w-full text-capitalize m-auto text-center text-xl border rounded">Success</div>
@@ -25,7 +30,7 @@
     {% endif %}
 {% endif %}
 <div id="formContainer" class="p-2">
-    <form method="post" id="registrationForm" action=".">
+    <form method="post" id="registrationForm" action="#">
         {% csrf_token %}
         {% for field in form %}
             {% include "smart/_fieldset.html" %}
@@ -35,3 +40,8 @@
         </div>
     </form>
 </div>
+<div id="log">
+
+</div>
+</body>
+</html>

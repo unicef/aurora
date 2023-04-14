@@ -58,7 +58,7 @@ class Registration(NaturalKeyModel, I18NModel, models.Model):
     name = CICharField(max_length=255, unique=True)
     title = models.CharField(max_length=500, blank=True, null=True)
     slug = models.SlugField(max_length=500, blank=True, null=True, unique=True)
-    project = models.ForeignKey(Project, null=True, on_delete=models.SET_NULL)
+    project = models.ForeignKey(Project, related_name="registrations", null=True, on_delete=models.SET_NULL)
 
     flex_form = models.ForeignKey(FlexForm, on_delete=models.PROTECT)
     start = models.DateField(default=timezone.now, editable=True)

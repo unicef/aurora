@@ -33,7 +33,7 @@
             {% endif %}
             <form data-smart-validator="{{ form.flexform.validator.name }}" class="w-full" method="post" enctype="multipart/form-data" id="registrationForm">
                 {% csrf_token %}
-                <div class="form-container" data-page="0">
+                <div class="form-container main" data-page="0">
                     {% for field in form %}{% include "smart/_fieldset.html" %}{% endfor %}
                 </div>
                 {% for name, formset in formsets.items %}
@@ -90,7 +90,13 @@
                                                 {% include "registration/_staff_edit_form.html" %}
                                             {% endif %}
                                             {% for field in form %}
+                                                {% ifchanged field.field.flex_field.advanced.css.group %}
+                                                <div class="fieldgroup">
+                                                {% endifchanged %}
                                                 {% include "smart/_fieldset.html" with counter=forloop.counter %}
+                                                {% ifchanged field.field.flex_field.advanced.css.group %}
+                                                </div>
+                                                {% endifchanged %}
                                             {% endfor %}
                                             <div class="flex">
                                                 <div class="flex-auto "></div>

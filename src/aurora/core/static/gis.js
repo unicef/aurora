@@ -13,8 +13,8 @@
                           speed: res.coords.speed
                       };
 
-                      $(".vLocationField").each(function () {
-                          $(this).val(btoa(JSON.stringify(data)));
+                      $(".LocationWidget").each(function () {
+                          new aurora.Field(this).setValue(JSON.stringify(data));
                       });
 
                   }, function (err) {
@@ -22,4 +22,4 @@
                   });
         }
     });
-})(jQuery);
+})(jQuery || django.jQuery);

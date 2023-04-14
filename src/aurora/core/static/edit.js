@@ -54,10 +54,15 @@
                             $(`.${t}`).hide();
                         }
                     });
-                    // $editCheckBox.on("click", function () {
-                    //     setEditorIcons($editCheckBox.is(":checked"));
-                    //     Cookies.set("staff-editor", $editCheckBox.is(":checked"));
-                    // });
+                    $editCheckBox.on("click", function () {
+                        setEditorIcons($editCheckBox.is(":checked"));
+                        Cookies.set("staff-editor", $editCheckBox.is(":checked"));
+                    });
+
+                    $i18nCheckBox.on("click", function () {
+                        setI18NIcons($i18nCheckBox.is(':checked'));
+                        Cookies.set("staff-i18n", $editCheckBox.is(":checked"));
+                    });
 
                     $editCheckBox.prop("checked", Cookies.get("staff-editor") === "true")
                     $i18nCheckBox.prop("checked", Cookies.get("staff-i18n") === "true");

@@ -1,0 +1,20 @@
+<textarea style="width: 90%" name="{{ widget.name }}"{% include "django/forms/widgets/attrs.html" %}>
+{% if widget.value %}{{ widget.value }}{% endif %}</textarea>
+<a id="regex_{{ widget.name }}" href="#" target="_regex">Regexnbsp;101</a>
+<script>
+    (function ($) {
+        $('#{{ widget.attrs.id }}').on("keyup", function () {
+            try{
+                var re = new RegExp($(this).val());
+                $(this).css("background-color", "");
+            }catch (e){
+                $(this).css("background-color", "rgba(199,95,95,0.55)");
+            }
+        });
+        $('#regex_{{ widget.name }}').on("click", function () {
+            var regex = $('textarea[name={{ widget.name }}]').val();
+            window.open("https://regex101.com/?flavor=javascript&regex=" + encodeURIComponent(regex), "regex");
+            return false;
+        });
+    })(django.jQuery);
+</script>

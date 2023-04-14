@@ -45,8 +45,8 @@ if ($ === undefined) {
             smart.handleQuestion(this);
         });
         // trigger onload events
-        $('[data-onload]').each(function () {
-            eval($(this).data('onload'));
-        });
+        // $('[data-onload]').each(function () {
+        //     eval($(this).data('onload'));
+        // });
     });
 })($);

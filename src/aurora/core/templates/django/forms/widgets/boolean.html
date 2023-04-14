@@ -1,0 +1,3 @@
+{% load itrans aurora %}{% if widget.flex_field.advanced.custom.position == "l" %}<span class="caption itrans {{ widget.flex_field.advanced.css.captions }}">{% trans widget.flex_field.advanced.custom.captions  %}</span>{% endif %}
+{% include "django/forms/widgets/input.html" %}
+{% if widget.flex_field.advanced.custom.position == "r" %}<span class="caption itrans {{ widget.flex_field.advanced.css.captions }}">{% trans widget.flex_field.advanced.custom.captions  %}</span>{% endif %}

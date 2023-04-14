@@ -10,6 +10,8 @@ from .views import (
     QRCodeView,
     RegistrarLoginView,
     offline,
+    org_index,
+    prj_index,
 )
 
 urlpatterns = [
@@ -22,4 +24,6 @@ urlpatterns = [
     path("maintenance", MaintenanceView.as_view(), name="maintenance"),
     path("qrcode/", QRCodeView.as_view(), name="qrcode"),
     path("offline/", offline, name="offline"),
+    path("org/<slug:org>/", org_index, name="org-index"),
+    path("org/<slug:org>/<slug:prj>/", prj_index, name="prj-index"),
 ]

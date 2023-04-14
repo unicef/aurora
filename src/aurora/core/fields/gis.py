@@ -2,25 +2,7 @@ import base64
 import json
 
 from django import forms
-from django.conf import settings
-
-
-class LocationWidget(forms.HiddenInput):
-    template_name = "django/forms/widgets/location.html"
-
-    def __init__(self, attrs=None):
-        attrs = {"class": "vLocationField", **(attrs or {})}
-        super().__init__(attrs=attrs)
-
-    @property
-    def media(self):
-        extra = "" if settings.DEBUG else ".min"
-        base = super().media
-        return base + forms.Media(
-            js=[
-                "gis%s.js" % extra,
-            ],
-        )
+from .widgets import LocationWidget
 
 
 class LocationField(forms.CharField):

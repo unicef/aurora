@@ -4,6 +4,7 @@ import json
 import logging
 from django.utils.module_loading import import_string
 from hashlib import md5
+from smart_admin.mixins import LinkedObjectsMixin
 
 from admin_extra_buttons.decorators import button, choice, view
 from admin_sync.mixin import SyncMixin
@@ -59,7 +60,7 @@ def can_export_data(request, obj, handler=None):
     return (obj.export_allowed and request.user.has_perm("registration.export_data", obj)) or is_root(request)
 
 
-class RegistrationAdmin(ConcurrencyVersionAdmin, SyncMixin, SmartModelAdmin):
+class RegistrationAdmin(ConcurrencyVersionAdmin, LinkedObjectsMixin, SyncMixin, SmartModelAdmin):
     search_fields = ("name", "title", "slug")
     date_hierarchy = "start"
     list_filter = (

@@ -3,7 +3,15 @@ dateutil = {
     today: TODAY,
     years18: new Date(new Date().setDate(TODAY.getDate() - (365 * 18))),
     years2: new Date(new Date().setDate(TODAY.getDate() - (365 * 2))),
-    getAge(date2, date1) {
+    isDate: function (d) {
+        try {
+            new Date(d)
+            return true
+        } catch (e) {
+            return false;
+        }
+    },
+    getAge: function (date2, date1) {
         // use today's date if ageAtDate is not provided
         if (typeof date1 == "undefined")
             date1 = new Date();
@@ -19,20 +27,20 @@ dateutil = {
         return years;
     }
 };
-_ = {
-    is_child: function (d) {
-        return d && dateutil.getAge(d) < 18
-    },
-    is_baby: function (d) {
-        return d && dateutil.getAge(d) <= 2
-    },
-    is_future: function (d) {
-        return d && Date.parse(d) > dateutil.today
-    },
-};
-_.is_adult = function (d) {
-    return !_.is_child(d)
-};
+// _ = {
+//     is_child: function (d) {
+//         return d && dateutil.getAge(d) < 18
+//     },
+//     is_baby: function (d) {
+//         return d && dateutil.getAge(d) <= 2
+//     },
+//     is_future: function (d) {
+//         return d && Date.parse(d) > dateutil.today
+//     },
+// };
+// _.is_adult = function (d) {
+//     return !_.is_child(d)
+// };
 
 smart_fs = {
     getCollector: function (cd) {
@@ -86,7 +94,6 @@ smart = {
         }
     },
     setRequired: function (targets, onOff) {
-        console.log(111.2, targets, onOff);
         $(targets).each(function (i, e) {
             if (onOff) {
                 $(e).attr("required", true);

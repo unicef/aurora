@@ -117,6 +117,7 @@ class FormFactory(AutoRegisterModelFactory):
 
 class FlexFormFieldFactory(AutoRegisterModelFactory):
     name = factory.Sequence(lambda d: "FormField-%s" % d)
+    flex_form = factory.SubFactory(FormFactory)
     field_type = "forms.CharField"
 
     class Meta:

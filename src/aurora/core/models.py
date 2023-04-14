@@ -1,3 +1,7 @@
+from typing import Literal, Tuple
+
+import copy
+
 import json
 import logging
 import re
@@ -35,11 +39,11 @@ from ..i18n.gettext import gettext as _
 from ..i18n.models import I18NModel
 from ..state import state
 from . import fields
-from .compat import RegexField, StrategyClassField
+from .compat import JavascriptRegexField, StrategyClassField
 from .fields import WIDGET_FOR_FORMFIELD_DEFAULTS, SmartFieldMixin
 from .forms import CustomFieldMixin, FlexFormBaseForm, SmartBaseFormSet
 from .registry import field_registry, form_registry, import_custom_field
-from .utils import JSONEncoder, dict_setdefault, jsonfy, namify, underscore_to_camelcase
+from .utils import JSONEncoder, dict_setdefault, jsonfy, namify, underscore_to_camelcase, oneline
 
 logger = logging.getLogger(__name__)
 
@@ -358,30 +362,42 @@ class FlexForm(AdminReverseMixin, I18NModel, NaturalKeyModel):
         return FormSet.objects.update_or_create(parent=self, flex_form=form, defaults=defaults)[0]
 
     # @cache_form
-    def get_form_class(self):
-        from aurora.core.fields import CompilationTimeField
-
+    def get_form_fields(self):
         fields = {}
-        compilation_time_field = None
-        indexes = FlexFormBaseForm.indexes.copy()
+        # base_order = self.advanced.get("field_order", [])
+
         for field in self.fields.filter(enabled=True).select_related("validator").order_by("ordering"):
             try:
                 fld = field.get_instance()
                 fields[field.name] = fld
-                if isinstance(fld, CompilationTimeField):
-                    compilation_time_field = field.name
-                if index := field.advanced.get("smart", {}).get("index"):
-                    indexes[str(index)] = field.name
+                # if isinstance(fld, CompilationTimeField):
+                #     fields["compilation_time_field_name"] = field.name
                 self._initial[field.name] = field.get_default_value()
             except TypeError:
                 pass
-        form_class_attrs = {
+        return fields
+
+    def get_indexed_fields(self, fields):
+        indexes = FlexFormBaseForm.indexes.copy()
+        for name, field in fields.items():
+            if index := field.flex_field.advanced.get("smart", {}).get("index"):
+                indexes[str(index)] = name
+        return indexes
+
+    def get_form_attrs(self):
+        fields = self.get_form_fields()
+        indexed = self.get_indexed_fields(fields)
+
+        return {
             "flex_form": self,
-            "compilation_time_field": compilation_time_field,
-            "indexes": indexes,
+            # "compilation_time_field": fields.pop("compilation_time_field_name", None),
+            "indexes": indexed,
+            "field_order": self.advanced.get("field_order"),
             **fields,
         }
-        flexForm = type(f"{self.name}FlexForm", (self.base_type,), form_class_attrs)
+
+    def get_form_class(self):
+        flexForm = type(f"{self.name}FlexForm", (self.base_type,), self.get_form_attrs())
         return flexForm
 
     def get_formsets_classes(self):
@@ -535,33 +551,27 @@ class RegexPatternValidator:
             raise ValidationError(e)
 
 
+@deconstructible
+class ChoicesValidator:
+    def __call__(self, value):
+        try:
+            list(dict(value).items())
+        except ValueError:
+            try:
+                list(zip(map(str.lower, value), value))
+            except Exception as e:
+                raise ValidationError(e)
+
+
+Section = Literal["field", "widget", "smart", "css", "custom", "data"]
+Sections = Tuple[Section, ...]
+
+
 class FlexFormField(AdminReverseMixin, NaturalKeyModel, I18NModel, OrderableModel):
     I18N_FIELDS = [
         "label",
     ]
     I18N_ADVANCED = ["smart.hint", "smart.question", "smart.description"]
-    FLEX_FIELD_DEFAULT_ATTRS = {
-        "widget": {
-            "pattern": None,
-            "onchange": "",
-            "title": None,
-            "placeholder": None,
-            "extra_classes": "",
-            "css_class": "",
-            "fieldset": "",
-        },
-        "kwargs": {
-            "default_value": None,
-        },
-        "smart": {
-            "hint": "",
-            "visible": True,
-            "choices": [],
-            "question": "",
-            "description": "",
-            "index": None,
-        },
-    }
 
     version = AutoIncVersionField()
     last_update_date = models.DateTimeField(auto_now=True)
@@ -570,15 +580,17 @@ class FlexFormField(AdminReverseMixin, NaturalKeyModel, I18NModel, OrderableMode
     label = models.CharField(max_length=2000)
     name = CICharField(max_length=100, blank=True, validators=[RegexValidator("^[a-z_0-9]*$")])
     field_type = StrategyClassField(registry=field_registry, import_error=import_custom_field)
-    choices = models.CharField(max_length=2000, blank=True, null=True)
+    choices = models.CharField(max_length=2000, blank=True, null=True, validators=[ChoicesValidator])
     required = models.BooleanField(default=False)
     enabled = models.BooleanField(default=True)
     validator = models.ForeignKey(
         Validator, blank=True, null=True, limit_choices_to={"target": Validator.FIELD}, on_delete=models.PROTECT
     )
     validation = models.TextField(blank=True, null=True)
-    regex = RegexField(blank=True, null=True, validators=[RegexPatternValidator()])
+    regex = JavascriptRegexField(blank=True, null=True, validators=[RegexPatternValidator()])
     advanced = models.JSONField(default=dict, blank=True, null=True)
+    mapping = models.CharField(max_length=500, default="", blank=True, null=True)
+    note = models.CharField(max_length=500, blank=True, null=True, help_text="Add here for the mapping")
 
     class Meta:
         unique_together = (("flex_form", "name"),)
@@ -600,7 +612,71 @@ class FlexFormField(AdminReverseMixin, NaturalKeyModel, I18NModel, OrderableMode
     def get_default_value(self):
         return self.advanced.get("kwargs", {}).get("default_value", None)
 
+    def get_choices(self):
+        value = self.advanced.get("custom", {}).get("choices", "")
+        try:
+            choices = json.loads(value)
+        except JSONDecodeError:
+            try:
+                choices = value.split(",")
+            except (ValueError, KeyError):
+                return []
+
+        if isinstance(choices, (list, tuple)):
+            return list(zip(choices, choices))
+        elif isinstance(choices, dict):
+            return list(dict(choices).items())
+        return []
+
     def get_field_kwargs(self):
+        field_kwargs = copy.deepcopy({**WIDGET_FOR_FORMFIELD_DEFAULTS.get(self.field_type, {})})
+        field_kwargs.update(**self.advanced.get("field", {}))
+        widget_kwargs = copy.deepcopy(self.advanced.get("widget", {}))
+        custom_kwargs = copy.deepcopy(self.advanced.get("custom", {}))
+        data = copy.deepcopy(self.advanced.get("data", {}))
+        # smart_attrs = self.advanced.get("smart", {})
+        # config = self.advanced.get("config", {})
+        # events = self.advanced.get("events", {})
+        # onload = events.pop("onload", "")
+        data["flex-name"] = self.name
+
+        if issubclass(self.field_type, CustomFieldMixin):
+            raise NotImplementedError("")
+        else:
+            field_type = self.field_type
+            field_kwargs.update(
+                **{
+                    "label": self.label,
+                    "disabled": not self.enabled,
+                    "required": self.required,
+                }
+            )
+            if "choices" in custom_kwargs:
+                field_kwargs["choices"] = self.get_choices()
+
+            for k, v in data.items():
+                if v:
+                    widget_kwargs[f"data-{k}"] = oneline(v)
+
+            if hasattr(field_type, "choices"):
+                field_kwargs["choices"] = self.get_choices()
+            #
+            widget_kwargs["class"] = self.advanced.get("css", {}).get("input", "") or getattr(
+                self.field_type.widget, "default_class", ""
+            )
+            # widget_kwargs["value"] = smart_attrs.get("default", "")
+            # widget_kwargs["placeholder"] = smart_attrs.get("placeholder", "")
+            # widget_kwargs.update(**config)
+            #
+            # widget_kwargs.update(**{k: oneline(v) for k, v in events.items()})
+            #
+            # widget_kwargs = {k: v for k, v in widget_kwargs.items() if v and str(v).strip()}
+        field_kwargs.setdefault("validators", get_validators(self))
+        widget_kwargs = {k: oneline(v) for k, v in widget_kwargs.items() if v and str(v).strip()}
+        kwargs = {"field": field_kwargs, "widget": widget_kwargs}
+        return kwargs
+
+    def _get_field_kwargs(self):
         if issubclass(self.field_type, CustomFieldMixin):
             advanced = self.advanced.copy()
             smart_attrs = advanced.pop("smart", {}).copy()
@@ -703,7 +779,12 @@ class FlexFormField(AdminReverseMixin, NaturalKeyModel, I18NModel, OrderableMode
             kwargs = self.get_field_kwargs()
             kwargs.setdefault("flex_field", self)
             tt = type(field_type.__name__, (SmartFieldMixin, field_type), dict())
-            fld = tt(**kwargs)
+            fld = tt(
+                **kwargs["field"],
+                flex_field=self,
+                # smart_attrs=kwargs["smart"],
+                widget_kwargs=kwargs["widget"],
+            )
         except Exception as e:
             logger.exception(e)
             raise
@@ -712,8 +793,6 @@ class FlexFormField(AdminReverseMixin, NaturalKeyModel, I18NModel, OrderableMode
     def clean(self):
         if self.field_type:
             try:
-                # dict_setdefault(self.advanced, self.FLEX_FIELD_DEFAULT_ATTRS)
-                # dict_setdefault(self.advanced, {"kwargs": FIELD_KWARGS.get(self.field_type, {})})
                 self.get_instance()
             except Exception as e:
                 logger.exception(e)
@@ -731,8 +810,8 @@ class FlexFormField(AdminReverseMixin, NaturalKeyModel, I18NModel, OrderableMode
             {
                 "type": "Form",
                 "obj": self.flex_form,
-                "editor_url": reverse("admin:registration_registration_change", args=[self.flex_form.pk]),
-                "change_url": reverse("admin:registration_registration_change", args=[self.flex_form.pk]),
+                "editor_url": reverse("admin:core_flexform_change", args=[self.flex_form.pk]),
+                "change_url": reverse("admin:core_flexform_change", args=[self.flex_form.pk]),
             }
         )
         return ret
@@ -848,7 +927,7 @@ class CustomFieldType(AdminReverseMixin, NaturalKeyModel, models.Model):
     name = CICharField(max_length=100, unique=True, validators=[RegexValidator("[A-Z][a-zA-Z0-9_]*")])
     base_type = StrategyClassField(registry=field_registry, default=forms.CharField)
     attrs = models.JSONField(default=dict)
-    regex = RegexField(blank=True, null=True)
+    regex = JavascriptRegexField(blank=True, null=True)
     # choices = models.CharField(max_length=2000, blank=True, null=True)
     # required = models.BooleanField(default=False)
     validator = models.ForeignKey(

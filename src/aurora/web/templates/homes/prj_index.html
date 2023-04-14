@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block body %}
+    <div class="min-h-screen flex justify-center bg-gray-100 pb-10">
+        <div class="w-full lg:w-1/2 mt-5">
+            <h1 class="text-3xl text-center">{{ organization }}</h1>
+            <h2 class="text-2xl text-center">{{ project }}</h2>
+            <div class="container m-5">
+                <ul>{% for reg in project.registrations.all %}
+                    <li class="my-2">
+                        {% if reg.show_in_homepage or user.is_staff %}
+                            <a href="{% url "register" reg.slug reg.version %}">{{ reg }}</a>
+                        {% endif %}
+                    </li>
+                {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+{% endblock %}

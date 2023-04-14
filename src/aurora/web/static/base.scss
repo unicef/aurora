@@ -241,37 +241,9 @@ ul.errorlist {
 
     &:disabled {
       cursor: not-allowed;
-      background-color: rgba(124, 124, 124, 0.67);
+      background-color: rgba(124, 124, 124, 0.67) !important;
       color: black;
-
     }
-  }
-
-  #registrationForm {
-    //input[type=submit] {
-    //  color: rgba(255, 255, 255, var(--text-opacity));
-    //  padding-left: 1rem;
-    //  padding-right: 1rem;
-    //  padding-top: 0.5rem;
-    //  padding-bottom: 0.5rem;
-    //  margin-top: 1rem;
-    //  font-weight: 700;
-    //  border-radius: 0.25rem;
-    //  background-color: rgba(66, 153, 225, var(--bg-opacity));
-    //  color: white;
-    //  cursor: pointer;
-    //
-    //  &:hover, &:active {
-    //    box-shadow: 0 0 0 3px rgb(66 153 225 / 50%);
-    //    outline: 2px solid transparent;
-    //    outline-offset: 2px;
-    //  }
-    //
-    //  &:disabled {
-    //    background-color: rgba(124, 124, 124, 0.67);
-    //    cursor: not-allowed;
-    //    color: black;
-    //  }
   }
 
   .formset {

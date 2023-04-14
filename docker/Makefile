@@ -113,7 +113,7 @@ release: .docker-login ## release version $VERSION
 run:  ## run image locally
 	CMD="" $(MAKE) .run
 
-test:  ## test docker image
+check:  ## test docker image
 	CMD='sh -c "whoami && django-admin collectstatic --no-input -v 3 && django-admin check --deploy"' \
 	$(MAKE) .run
 

@@ -176,7 +176,7 @@ ul.errorlist li {
 }
 #formContainer input[type=submit]:disabled, #formContainer input[type=button]:disabled {
   cursor: not-allowed;
-  background-color: rgba(124, 124, 124, 0.67);
+  background-color: rgba(124, 124, 124, 0.67) !important;
   color: black;
 }
 #formContainer .formset .formset-add-row .formset-add-button {

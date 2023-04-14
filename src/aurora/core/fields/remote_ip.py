@@ -17,3 +17,11 @@ class RemoteIpField(forms.CharField):
 
     def to_python(self, value):
         return get_client_ip(state.request)
+
+    def widget_attrs(self, widget):
+        attrs = super().widget_attrs(widget)
+        try:
+            attrs["value"] = get_client_ip(state.request)
+        except AttributeError:
+            pass
+        return attrs

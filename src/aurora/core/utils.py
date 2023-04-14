@@ -122,7 +122,7 @@ class JSONEncoder(DjangoJSONEncoder):
 
 
 def safe_json(data):
-    return json.dumps(data, cls=JSONEncoder)
+    return json.dumps(data, cls=JSONEncoder, indent=4, sort_keys=True)
 
 
 def jsonfy(data):

@@ -92,28 +92,19 @@ class SelectField(forms.ChoiceField):
 class AjaxSelectField(forms.Field):
     widget = AjaxSelectWidget
 
-    def __init__(self, **kwargs):
-        if hasattr(self, "smart_attrs"):
-            self.parent = self.smart_attrs.get("parent_datasource", None)
-            self.datasource = self.smart_attrs.get("datasource", None)
-        elif "datasource" in kwargs:
-            self.datasource = kwargs["datasource"]
-        else:
-            self.datasource = None
-            self.parent = None
-
-        super().__init__(**kwargs)
-
     def widget_attrs(self, widget):
         from aurora.core.models import OptionSet
 
         attrs = super().widget_attrs(widget)
         try:
-            if self.parent:
-                attrs["data-parent"] = self.parent
-            attrs["data-source"] = self.datasource
-            attrs["data-ajax--url"] = reverse("optionset", args=[self.datasource])
-        except (OptionSet.DoesNotExist, NoReverseMatch, TypeError) as e:
+            if self.flex_field:
+                self.datasource = self.flex_field.advanced.get("custom", {}).get("datasource", None)
+                self.parent = self.flex_field.advanced.get("custom", {}).get("parent", None)
+                attrs["data-source"] = self.datasource
+                attrs["data-ajax--url"] = reverse("optionset", args=[self.datasource])
+                if self.parent:
+                    attrs["data-parent"] = self.parent
+        except (OptionSet.DoesNotExist, NoReverseMatch, TypeError, AttributeError) as e:
             logger.exception(e)
 
         return attrs
