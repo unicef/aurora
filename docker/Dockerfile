@@ -1,4 +1,4 @@
-FROM python:3.11-slim-bullseye
+FROM python:3.11-slim-bullseye as base
 ARG BUILD_DATE
 ARG VERSION
 
@@ -64,3 +64,8 @@ ADD ./docker/bin/* /usr/local/bin/
 
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 EXPOSE 8000
+
+FROM base as dev
+RUN pdm sync --dev
+
+FROM base as dist

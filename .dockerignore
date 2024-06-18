@@ -1,6 +1,5 @@
 .*
 ~*
-*.ini
 *.yml
 *.min.min.js
 package*.*
@@ -8,10 +7,10 @@ coverage.xml
 bin/
 Dockerfile*
 __pycache__
-tests
 node_modules
 src/*.egg-info
 src/aurora/staticfiles/
 Makefile
 README.md
 manage.py
+!.flake8

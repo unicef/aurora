@@ -1,4 +1,3 @@
-.*
 ~*
 *.min.min.js
 *.py[ico]
@@ -25,3 +24,4 @@ docker/conf/redis.conf
 src/aurora/staticfiles
 
 .pdm-python
+.vscode

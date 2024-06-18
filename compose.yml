@@ -1,5 +1,3 @@
-version: '3.7'
-
 volumes:
   db:
 
@@ -12,21 +10,26 @@ services:
     build:
       context: ./
       dockerfile: ./docker/Dockerfile
+      target: dev
+    command: dev
+    # FIXME: if the below lines are uncommented, then __pypackages__ get lost
+    # volumes:
+    #   - ./:/code/
     ports:
       - "8000:8000"
-    volumes:
-      - ./:/code/
-    command: "dev"
     depends_on:
       - db
+      - redis
+
   db:
-    image: mdillon/postgis:11-alpine
+    image: postgres:16
     volumes:
       - db:/var/lib/postgresql/data
     env_file:
       - .env
+
   redis:
-    image: redis:4.0.11-alpine3.8
+    image: redis:7
     restart: unless-stopped
     expose:
       - "6379"

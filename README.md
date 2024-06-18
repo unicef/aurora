@@ -14,18 +14,18 @@ First configure your `.envrc` and run
   python manage.py runserver
 ````
 
-- Option 2: using docker-composer
+- Option 2: using docker compose
 
 For the first time you need to run in root project directory
 
 ```shell
 ./manage env --comment --defaults > .env
-docker-compose build
-docker-compose up
+docker compose build
+docker compose up
 ```
 
 each next time
 
 ```shell
-docker-compose up
+docker compose up
 ```

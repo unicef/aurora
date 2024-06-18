@@ -1,0 +1,23 @@
+services:
+  backend:
+    stdin_open: true
+    tty: true
+    env_file:
+      - test.env
+    image: ${backend_image}
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+      - redis
+
+  db:
+    image: postgres:16
+    env_file:
+      - test.env
+
+  redis:
+    image: redis:7
+    restart: unless-stopped
+    expose:
+      - "6379"

@@ -124,6 +124,7 @@ exclude = '''
   | dist
   | migrations
   | snapshots
+  | __pypackages__
 )/
 '''
 

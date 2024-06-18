@@ -1,7 +1,17 @@
 [flake8]
 max-complexity = 20
 max-line-length = 120
-exclude = ~*
+exclude =
+    .venv,
+    venv,
+    .git,
+    __pycache__,
+    build,
+    dist,
+    migrations,
+    snapshots,
+    __pypackages__,
+
 ignore = E401,W391,E128,E261,E731,Q000,W504,W606,W503,E203
 ;putty-ignore =
     ;    tests/test_choice_as_instance.py : E501
